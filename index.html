@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Parfai的图书金矿</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Varela+Round&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'mario-red': '#E60012',
+              'mario-blue': '#0055D4',
+              'mario-yellow': '#FFD600',
+              'mario-green': '#43B047',
+              'mario-brown': '#7F4F24',
+              'mario-sky': '#6B8CFF',
+              'mario-cloud': '#F8F9FA',
+            },
+            fontFamily: {
+              'pixel': ['"Press Start 2P"', 'cursive'],
+              'round': ['"Varela Round"', 'sans-serif'],
+            },
+            boxShadow: {
+              'pixel': '4px 4px 0px 0px rgba(0,0,0,0.2)',
+              'pixel-lg': '8px 8px 0px 0px rgba(0,0,0,0.2)',
+              'inset-pixel': 'inset 4px 4px 0px 0px rgba(255,255,255,0.4)',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #6B8CFF; /* Mario Sky Blue */
+        background-image: 
+          radial-gradient(white 15%, transparent 16%),
+          radial-gradient(white 15%, transparent 16%);
+        background-size: 60px 60px;
+        background-position: 0 0, 30px 30px;
+        font-family: 'Varela Round', sans-serif;
+        overflow: hidden; 
+      }
+      
+      /* Cloud Decoration */
+      .bg-clouds {
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25 60 C25 60 20 60 20 50 C20 40 30 35 40 40 C40 40 45 30 55 35 C55 35 65 30 75 40 C75 40 85 45 80 60 L25 60 Z' fill='rgba(255,255,255,0.4)' /%3E%3C/svg%3E");
+        background-size: 200px 100px;
+        background-repeat: repeat-x;
+        animation: cloudMove 60s linear infinite;
+      }
+
+      @keyframes cloudMove {
+        from { background-position: 0 bottom; }
+        to { background-position: 1000px bottom; }
+      }
+
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #00000022;
+        border-radius: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #E60012;
+        border: 2px solid #6B8CFF;
+        border-radius: 6px;
+      }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+  }
+}
+</script>
+  </head>
+  <body>
+    <div id="root" class="bg-clouds absolute inset-0"></div>
+  </body>
+</html>
