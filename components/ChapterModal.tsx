@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { X, Camera, CheckCircle, Lock, Trash2 } from 'lucide-react';
+import { X, Camera, CheckCircle, Lock, Trash2, Image as ImageIcon } from 'lucide-react';
 import { Book, Chapter } from '../types';
 import Button from './Button';
 
@@ -11,7 +11,8 @@ interface ChapterModalProps {
 }
 
 const ChapterModal: React.FC<ChapterModalProps> = ({ book, onClose, onUploadProof, onDeleteBook }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [selectedChapterId, setSelectedChapterId] = React.useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
@@ -25,11 +26,18 @@ const ChapterModal: React.FC<ChapterModalProps> = ({ book, onClose, onUploadProo
       };
       reader.readAsDataURL(file);
     }
+    // Reset inputs to allow selecting the same file again if needed
+    e.target.value = '';
   };
 
-  const triggerFileInput = (chapterId: string) => {
+  const triggerCamera = (chapterId: string) => {
     setSelectedChapterId(chapterId);
-    fileInputRef.current?.click();
+    cameraInputRef.current?.click();
+  };
+
+  const triggerGallery = (chapterId: string) => {
+    setSelectedChapterId(chapterId);
+    galleryInputRef.current?.click();
   };
 
   const handleDelete = () => {
@@ -123,24 +131,41 @@ const ChapterModal: React.FC<ChapterModalProps> = ({ book, onClose, onUploadProo
               )}
 
               {!chapter.isCompleted && (
-                <button
-                  onClick={() => triggerFileInput(chapter.id)}
-                  className="mt-auto w-full bg-mario-blue text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-pixel border-2 border-black/10 font-round"
-                >
-                  <Camera size={20} />
-                  <span>拍照打卡</span>
-                </button>
+                <div className="mt-auto w-full flex gap-3">
+                    <button
+                      onClick={() => triggerCamera(chapter.id)}
+                      className="flex-1 bg-mario-blue text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-pixel border-2 border-black/10 font-round"
+                    >
+                      <Camera size={20} />
+                      <span>拍照</span>
+                    </button>
+                    <button
+                      onClick={() => triggerGallery(chapter.id)}
+                      className="flex-1 bg-mario-yellow text-mario-brown font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-pixel border-2 border-black/10 font-round"
+                    >
+                      <ImageIcon size={20} />
+                      <span>相册</span>
+                    </button>
+                </div>
               )}
             </div>
           ))}
         </div>
 
-        {/* Hidden Input */}
+        {/* Hidden Inputs */}
         <input
           type="file"
           accept="image/*"
           capture="environment"
-          ref={fileInputRef}
+          ref={cameraInputRef}
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <input
+          type="file"
+          accept="image/*"
+          // No capture attribute allows iOS to show the Photo Library option
+          ref={galleryInputRef}
           className="hidden"
           onChange={handleFileChange}
         />
