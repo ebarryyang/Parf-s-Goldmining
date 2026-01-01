@@ -197,7 +197,7 @@ const App: React.FC = () => {
       <header className="pt-6 pb-2 px-6 flex items-center justify-center relative z-20">
         <div className="bg-gradient-to-r from-mario-red to-orange-500 text-white px-6 py-3 rounded-xl font-pixel text-lg md:text-2xl tracking-widest shadow-pixel border-4 border-white flex items-center gap-3 transform rotate-[-2deg] hover:rotate-0 transition-transform cursor-default">
           <BookOpen fill="white" size={28} />
-          Parfai的图书金矿冒险
+          Parf's Book Goldmining Adventure
         </div>
       </header>
 
