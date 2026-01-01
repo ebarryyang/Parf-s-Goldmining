@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { X, Hammer, Volume2, VolumeX, Star, ArrowLeft, ArrowRight, ArrowUp, Zap } from 'lucide-react';
+import { X, Hammer, Volume2, VolumeX, Star, Zap, ArrowUp } from 'lucide-react';
 import { UserStats, GameProgress, Pet } from '../types';
 import { LEVELS, COINS_TO_PASS_LEVEL, MAMMALS, POP_CULTURE, TREASURES, COINS_PER_DIG } from '../constants';
 
@@ -55,6 +55,9 @@ const MiningGame: React.FC<MiningGameProps> = ({
   const [localCoins, setLocalCoins] = useState(progress.levelCoinsFound);
   const [localShovels, setLocalShovels] = useState(stats.shovels);
   const [isMuted, setIsMuted] = useState(false);
+  
+  // Track pressed state for visual feedback on virtual buttons
+  const [activeBtn, setActiveBtn] = useState<string | null>(null);
 
   // Game Engine State
   const playerRef = useRef({ 
@@ -411,8 +414,14 @@ const MiningGame: React.FC<MiningGameProps> = ({
 
   // Game Loop & Input Listener
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => { keysRef.current[e.code] = true; };
-    const handleKeyUp = (e: KeyboardEvent) => { keysRef.current[e.code] = false; };
+    const handleKeyDown = (e: KeyboardEvent) => { 
+        keysRef.current[e.code] = true; 
+        setActiveBtn(e.code);
+    };
+    const handleKeyUp = (e: KeyboardEvent) => { 
+        keysRef.current[e.code] = false; 
+        setActiveBtn(null);
+    };
     const handleDigInput = (e: KeyboardEvent) => {
         if (e.code === 'KeyA') startDig();
     };
@@ -439,9 +448,9 @@ const MiningGame: React.FC<MiningGameProps> = ({
   // Touch Handlers for Virtual Controls
   const handleTouchStart = (code: string) => {
       keysRef.current[code] = true;
+      setActiveBtn(code);
       if (code === 'KeyA') startDig(); // Immediate trigger for Dig
       if (code === 'Space' && playerRef.current.grounded) {
-          // Immediate trigger for Jump to make it responsive
           playerRef.current.vy = JUMP_FORCE;
           playerRef.current.grounded = false;
           playerRef.current.action = 'JUMP';
@@ -449,6 +458,7 @@ const MiningGame: React.FC<MiningGameProps> = ({
   };
   const handleTouchEnd = (code: string) => {
       keysRef.current[code] = false;
+      setActiveBtn(null);
   };
 
   // 3D Rabbit Drawing Function
@@ -948,7 +958,7 @@ const MiningGame: React.FC<MiningGameProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
       
       {/* Background Music - Retro Arcade Style */}
       <audio 
@@ -963,153 +973,153 @@ const MiningGame: React.FC<MiningGameProps> = ({
         src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-treasure-2066.mp3" 
       />
 
-      <div className="relative w-[75vw] h-[75vh] bg-black border-4 border-white shadow-pixel-lg overflow-hidden flex flex-col rounded-xl">
+      {/* Main Console Container (Handheld Style) */}
+      <div className="flex flex-row items-center justify-center w-full h-full p-2 md:p-6 bg-[#2f2f2f] relative">
         
-        {/* HUD */}
-        <div className="bg-black text-white p-2 md:p-4 flex justify-between items-center z-10 font-pixel text-xs md:text-sm border-b-2 border-white shrink-0">
-           <div className="flex gap-4">
-              <div className="flex items-center gap-2 text-mario-yellow">
-                  <Hammer size={16} />
-                  <span>{localShovels}</span>
-              </div>
-              <div className="flex items-center gap-2 text-mario-blue">
-                  <span>LEVEL {progress.currentLevelIndex + 1}</span>
-                  <span className="hidden md:inline text-gray-400"> - {currentLevelData.name}</span>
-              </div>
-           </div>
-           
-           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
-               <span className="text-yellow-400">COINS:</span>
-               <span>{localCoins}/{COINS_TO_PASS_LEVEL}</span>
-           </div>
+        {/* Left Controller (D-Pad) */}
+        <div className="w-24 md:w-32 h-full flex flex-col justify-center items-center shrink-0 mr-2 md:mr-4">
+             <div className="relative w-32 h-32 md:w-40 md:h-40">
+                 {/* Cross D-Pad Background */}
+                 <div className="absolute top-1/3 left-0 w-full h-1/3 bg-[#1a1a1a] rounded-sm shadow-inner"></div>
+                 <div className="absolute top-0 left-1/3 w-1/3 h-full bg-[#1a1a1a] rounded-sm shadow-inner"></div>
 
-           <div className="flex gap-4">
-               <button onClick={toggleMusic} className="hover:text-blue-400">
-                   {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
-               </button>
-               <button onClick={onClose} className="hover:text-red-500">
-                   <X size={24} />
-               </button>
-           </div>
+                 {/* Center Pivot */}
+                 <div className="absolute top-1/3 left-1/3 w-1/3 h-1/3 bg-[#111] rounded-full radial-gradient(circle, #222 0%, #111 100%)"></div>
+
+                 {/* Left Button */}
+                 <button 
+                     className={`absolute top-1/3 left-0 w-1/3 h-1/3 bg-[#333] hover:bg-[#444] active:bg-[#222] rounded-l-md flex items-center justify-center touch-none transition-all ${activeBtn === 'ArrowLeft' ? 'translate-y-[2px] shadow-none' : 'shadow-[0_4px_0_#111]'}`}
+                     onTouchStart={() => handleTouchStart('ArrowLeft')}
+                     onTouchEnd={() => handleTouchEnd('ArrowLeft')}
+                     onMouseDown={() => handleTouchStart('ArrowLeft')}
+                     onMouseUp={() => handleTouchEnd('ArrowLeft')}
+                 >
+                     <span className="border-t-[10px] border-r-[15px] border-b-[10px] border-transparent border-r-gray-500/50 -ml-1"></span>
+                 </button>
+
+                 {/* Right Button */}
+                 <button 
+                     className={`absolute top-1/3 right-0 w-1/3 h-1/3 bg-[#333] hover:bg-[#444] active:bg-[#222] rounded-r-md flex items-center justify-center touch-none transition-all ${activeBtn === 'ArrowRight' ? 'translate-y-[2px] shadow-none' : 'shadow-[0_4px_0_#111]'}`}
+                     onTouchStart={() => handleTouchStart('ArrowRight')}
+                     onTouchEnd={() => handleTouchEnd('ArrowRight')}
+                     onMouseDown={() => handleTouchStart('ArrowRight')}
+                     onMouseUp={() => handleTouchEnd('ArrowRight')}
+                 >
+                     <span className="border-t-[10px] border-l-[15px] border-b-[10px] border-transparent border-l-gray-500/50 -mr-1"></span>
+                 </button>
+                 
+                 {/* Up/Down Decorative (Non-functional for side scroller but adds to look) */}
+                 <div className="absolute top-0 left-1/3 w-1/3 h-1/3 bg-[#333] rounded-t-md shadow-[0_4px_0_#111] pointer-events-none"></div>
+                 <div className="absolute bottom-0 left-1/3 w-1/3 h-1/3 bg-[#333] rounded-b-md shadow-[0_4px_0_#111] pointer-events-none"></div>
+             </div>
         </div>
 
-        <div className="flex-1 relative w-full h-full bg-gray-800 group">
+        {/* Screen Container */}
+        <div className="flex-1 aspect-[4/3] max-h-full rounded-t-xl md:rounded-xl overflow-hidden shadow-inset-pixel border-[12px] md:border-[20px] border-gray-400 bg-gray-800 relative flex flex-col max-w-[800px]">
+            
+            {/* Power LED (Cosmetic) */}
+            <div className="absolute top-1/2 -left-[16px] md:-left-[26px] -translate-y-1/2 w-2 h-8 md:w-3 md:h-12 bg-red-900 rounded-full flex items-center justify-center">
+                 <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_red]"></div>
+            </div>
+
+            {/* Canvas */}
             <canvas 
                 ref={canvasRef} 
                 width={800} 
                 height={600}
-                className="w-full h-full object-contain image-pixelated"
+                className="w-full h-full object-contain image-pixelated bg-black"
             />
-
-            {/* Virtual Controls Overlay for Touch Devices */}
-            <div className="absolute inset-0 z-20 pointer-events-none md:hidden flex flex-col justify-end p-4 pb-8 select-none">
-                <div className="flex justify-between items-end">
-                    
-                    {/* D-Pad (Left/Right) */}
-                    <div className="flex gap-4 pointer-events-auto">
-                        <button 
-                            className="w-20 h-20 bg-white/20 backdrop-blur-sm border-4 border-white/50 rounded-full flex items-center justify-center active:bg-white/40 active:scale-95 transition-all shadow-lg touch-none"
-                            onTouchStart={() => handleTouchStart('ArrowLeft')}
-                            onTouchEnd={() => handleTouchEnd('ArrowLeft')}
-                        >
-                            <ArrowLeft size={32} className="text-white drop-shadow-md" />
-                        </button>
-                        <button 
-                            className="w-20 h-20 bg-white/20 backdrop-blur-sm border-4 border-white/50 rounded-full flex items-center justify-center active:bg-white/40 active:scale-95 transition-all shadow-lg touch-none"
-                            onTouchStart={() => handleTouchStart('ArrowRight')}
-                            onTouchEnd={() => handleTouchEnd('ArrowRight')}
-                        >
-                            <ArrowRight size={32} className="text-white drop-shadow-md" />
-                        </button>
-                    </div>
-
-                    {/* Action Buttons (A/B) */}
-                    <div className="flex gap-4 pointer-events-auto items-end">
-                        {/* B Button (Jump) */}
-                        <div className="flex flex-col items-center gap-1 mb-4">
-                            <button 
-                                className="w-16 h-16 bg-mario-green/60 backdrop-blur-sm border-4 border-white/50 rounded-full flex items-center justify-center active:bg-mario-green/80 active:scale-95 transition-all shadow-lg touch-none"
-                                onTouchStart={() => handleTouchStart('Space')}
-                                onTouchEnd={() => handleTouchEnd('Space')}
-                            >
-                                <ArrowUp size={28} className="text-white drop-shadow-md" />
-                            </button>
-                            <span className="text-white font-pixel text-[10px] drop-shadow-md">B/跳跃</span>
-                        </div>
-
-                        {/* A Button (Dig) */}
-                        <div className="flex flex-col items-center gap-1">
-                            <button 
-                                className="w-20 h-20 bg-mario-red/60 backdrop-blur-sm border-4 border-white/50 rounded-full flex items-center justify-center active:bg-mario-red/80 active:scale-95 transition-all shadow-lg touch-none"
-                                onTouchStart={() => handleTouchStart('KeyA')}
-                                onTouchEnd={() => handleTouchEnd('KeyA')}
-                            >
-                                <Hammer size={32} className="text-white drop-shadow-md" />
-                            </button>
-                            <span className="text-white font-pixel text-xs drop-shadow-md">A/挖掘</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
             
+            {/* HUD Overlay inside Screen */}
+            <div className="absolute top-0 left-0 right-0 p-2 md:p-4 flex justify-between items-start pointer-events-none">
+                 <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-white font-pixel text-xs md:text-sm drop-shadow-md">
+                        <Hammer size={14} className="text-mario-yellow" />
+                        <span>x {localShovels}</span>
+                    </div>
+                    <div className="text-white font-pixel text-[10px] md:text-xs opacity-80">
+                        Lvl {progress.currentLevelIndex + 1}
+                    </div>
+                 </div>
+
+                 <div className="flex gap-2 pointer-events-auto">
+                    <button onClick={toggleMusic} className="bg-black/50 p-1 rounded hover:text-mario-blue text-white">
+                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                    </button>
+                    <button onClick={onClose} className="bg-black/50 p-1 rounded hover:text-red-500 text-white">
+                        <X size={16} />
+                    </button>
+                 </div>
+            </div>
+
+            {/* Level Progress */}
+            <div className="absolute bottom-2 right-2 text-mario-yellow font-pixel text-xs drop-shadow-md">
+               ${localCoins}/{COINS_TO_PASS_LEVEL}
+            </div>
+
             {/* Reward Modal Overlay */}
             {gameState === 'REWARD' && rewardItem && (
                 <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm animate-in zoom-in duration-300">
-                    
-                    {/* Fireworks Effects CSS */}
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                       <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-mario-yellow rounded-full animate-ping opacity-75 shadow-[0_0_20px_#FFD700]"></div>
-                       <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-mario-red rounded-full animate-ping delay-100 opacity-75 shadow-[0_0_20px_#E60012]"></div>
-                       <div className="absolute bottom-1/3 left-1/2 w-5 h-5 bg-mario-blue rounded-full animate-ping delay-200 opacity-75 shadow-[0_0_20px_#0055D4]"></div>
-                       <div className="absolute top-1/2 right-1/3 w-2 h-2 bg-green-400 rounded-full animate-ping delay-300 opacity-75 shadow-[0_0_20px_#4ADE80]"></div>
-                       
-                       {/* Confetti */}
-                       <div className="absolute top-0 left-1/2 w-2 h-4 bg-yellow-400 rotate-45 animate-[bounce_2s_infinite]"></div>
-                       <div className="absolute top-10 left-1/3 w-2 h-4 bg-red-400 -rotate-12 animate-[bounce_2.2s_infinite]"></div>
-                       <div className="absolute top-5 right-1/3 w-2 h-4 bg-blue-400 rotate-12 animate-[bounce_2.5s_infinite]"></div>
-                    </div>
-
-                    <div className="relative bg-white border-4 border-mario-blue rounded-xl p-8 max-w-sm w-full text-center shadow-[0_0_0_8px_rgba(0,0,0,0.5)] transform scale-110 flex flex-col items-center gap-4">
-                        
-                        {/* Header Badge */}
-                        <div className="absolute -top-6 bg-mario-red text-white font-pixel px-4 py-2 rounded-lg border-2 border-white shadow-lg animate-bounce">
-                           {rewardItem.type === 'GOLD' ? '发现宝藏!' : '获得收藏!'}
-                        </div>
-
-                        {/* Icon */}
-                        <div className="text-8xl mt-4 filter drop-shadow-md animate-[pulse_1.5s_infinite]">
+                    <div className="relative bg-white border-4 border-mario-blue rounded-xl p-4 md:p-8 max-w-sm w-3/4 text-center shadow-[0_0_0_8px_rgba(0,0,0,0.5)] flex flex-col items-center gap-2">
+                         <div className="text-6xl md:text-8xl mt-2 filter drop-shadow-md animate-bounce">
                            {rewardItem.icon}
                         </div>
-
-                        {/* Name */}
-                        <h2 className="text-2xl font-black text-gray-800 font-pixel drop-shadow-sm">
+                        <h2 className="text-lg md:text-2xl font-black text-gray-800 font-pixel drop-shadow-sm mt-2">
                            {rewardItem.name}
                         </h2>
-
-                        {/* Rarity Stars */}
-                        <div className="flex gap-1 justify-center">
+                        <div className="flex gap-1 justify-center my-2">
                             {Array.from({length: 5}).map((_, i) => (
-                                <Star 
-                                  key={i} 
-                                  size={24} 
-                                  className={i < rewardItem.rarity 
-                                    ? "text-mario-yellow fill-mario-yellow drop-shadow-sm" 
-                                    : "text-gray-300"} 
-                                />
+                                <Star key={i} size={16} className={i < rewardItem.rarity ? "text-mario-yellow fill-mario-yellow" : "text-gray-300"} />
                             ))}
                         </div>
-
-                        {/* Description/Flavor */}
-                        <div className="bg-gray-100 rounded-lg p-2 w-full border-2 border-gray-200">
-                             <p className="text-gray-500 font-bold text-sm">
-                                {rewardItem.type === 'GOLD' 
-                                    ? '可以用来购买道具哦!' 
-                                    : '已收录至皇家博物馆'}
-                             </p>
+                        <div className="bg-gray-100 rounded-lg p-2 w-full text-xs font-bold text-gray-500">
+                            {rewardItem.type === 'GOLD' ? `+${COINS_PER_DIG} Coins` : '已收录!'}
                         </div>
                     </div>
                 </div>
             )}
+        </div>
+
+        {/* Right Controller (Actions) */}
+        <div className="w-24 md:w-32 h-full flex flex-col justify-center items-center shrink-0 ml-2 md:ml-4 relative">
+             <div className="relative w-32 h-32 md:w-40 md:h-40 rotate-[-15deg]">
+                 
+                 {/* A Button (Dig) - Right Top */}
+                 <div className="absolute top-0 right-2 flex flex-col items-center">
+                     <button 
+                        className={`w-14 h-14 md:w-16 md:h-16 rounded-full bg-purple-600 border-purple-800 touch-none transition-all flex items-center justify-center ${activeBtn === 'KeyA' ? 'translate-y-[4px] border-b-0' : 'border-b-4 shadow-lg'}`}
+                        onTouchStart={() => handleTouchStart('KeyA')}
+                        onTouchEnd={() => handleTouchEnd('KeyA')}
+                        onMouseDown={() => handleTouchStart('KeyA')}
+                        onMouseUp={() => handleTouchEnd('KeyA')}
+                     >
+                        <Zap size={24} className="text-purple-200" />
+                     </button>
+                     <span className="font-pixel text-gray-400 text-xs font-bold mt-1">A</span>
+                 </div>
+
+                 {/* B Button (Jump) - Left Bottom */}
+                 <div className="absolute bottom-4 left-2 flex flex-col items-center">
+                     <button 
+                        className={`w-14 h-14 md:w-16 md:h-16 rounded-full bg-purple-600 border-purple-800 touch-none transition-all flex items-center justify-center ${activeBtn === 'Space' ? 'translate-y-[4px] border-b-0' : 'border-b-4 shadow-lg'}`}
+                        onTouchStart={() => handleTouchStart('Space')}
+                        onTouchEnd={() => handleTouchEnd('Space')}
+                        onMouseDown={() => handleTouchStart('Space')}
+                        onMouseUp={() => handleTouchEnd('Space')}
+                     >
+                        <ArrowUp size={28} className="text-purple-200" />
+                     </button>
+                     <span className="font-pixel text-gray-400 text-xs font-bold mt-1">B</span>
+                 </div>
+             </div>
+             
+             {/* Decorative Speaker Grille */}
+             <div className="absolute bottom-8 right-4 flex gap-1 rotate-[-15deg] opacity-30">
+                 <div className="w-1 h-8 bg-black rounded-full"></div>
+                 <div className="w-1 h-8 bg-black rounded-full"></div>
+                 <div className="w-1 h-8 bg-black rounded-full"></div>
+                 <div className="w-1 h-8 bg-black rounded-full"></div>
+             </div>
         </div>
 
       </div>
